@@ -1,0 +1,45 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spring-boot-config
+data:
+  ACTIVE_SPRING_PROFILE: dev
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-boot-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-boot
+  template:
+    metadata:
+      labels:
+        app: spring-boot
+    spec:
+      containers:
+        - name: spring-boot-container
+          image: openjdk:8-jre-alpine #Change image
+          ports:
+            - containerPort: 8080 #Change port
+          envFrom:
+            - configMapRef:
+                name: spring-boot-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-boot-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: spring-boot # must match deployment.spec.selector.matchLabels
+  ports:
+    - protocol: TCP
+      port: 8080 #Change port
+      targetPort: 8080 #Change port
