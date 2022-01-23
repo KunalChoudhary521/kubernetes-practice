@@ -1,0 +1,13 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flyway-config
+  labels:
+    app: web-app
+data:
+  # Move user & pass to secrets file
+  FLYWAY_DRIVER: org.postgresql.Driver
+  FLYWAY_URL: jdbc:postgresql://postgres-service:5432/products
+  FLYWAY_USER: postgres
+  FLYWAY_PASSWORD: postgres
+  FLYWAY_CONNECTRETRIES: "2"

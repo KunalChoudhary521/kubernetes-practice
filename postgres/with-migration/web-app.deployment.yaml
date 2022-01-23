@@ -1,0 +1,36 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-deploy
+spec:
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      # source: https://youtu.be/BWKcTjtP16s
+      initContainers:
+        - name: baseline-container
+          image: flyway/flyway:6.5.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: flyway-config
+          # schema table: SELECT * FROM flyway_schema_history;
+          command: [ "flyway", "baseline" ]
+        - name: migration-container
+          # Note: this image is build using Dockerfile
+          # Alternatively, mount volume with migration files (source: https://stackoverflow.com/a/53068092)
+          image: my-flyway:1.0
+          imagePullPolicy: Never
+          envFrom:
+            - configMapRef:
+                name: flyway-config
+          command: [ "flyway", "migrate" ]
+      containers:
+        - name: webapp-container
+          image: busybox:1.28
+          command: ['sh', '-c', 'echo web-app container running!, timestamp: $(date) ! && sleep 120']

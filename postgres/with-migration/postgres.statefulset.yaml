@@ -1,0 +1,65 @@
+﻿# step #1 (build image with migration files): docker build -t my-flyway:1.0 .
+# step #2: kubectl apply -f postgres.config.yaml -f postgres.statefulset.yaml
+# step #3: kubectl apply -f flyway.config.yaml -f web-app.deployment.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-db # must match spec.template.metadata.labels below
+  template:
+    metadata:
+      labels:
+        app: postgres-db # must match spec.selector.matchLabels above
+    spec:
+      containers:
+        - name: db-container
+          image: postgres:13
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "psql -U postgres", "SELECT 1;"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+  # dynamic persistent volume
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: "hostpath"
+        resources:
+          requests:
+            storage: 100Mi
+  # deletes pvc when StatefulSet is deleted (k8s v1.23)
+#  persistentVolumeClaimRetentionPolicy:
+#     whenDeleted: Delete
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: postgres-db
+  ports:
+    - protocol: TCP
+      port: 5432
+      # postgres DB exposed on localhost:5432
+      targetPort: 5432
