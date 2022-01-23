@@ -1,0 +1,38 @@
+﻿# To create/run: kubectl apply -f nginx.pod.yaml --dry-run=client --validate=true
+# To delete: kubectl delete -f nginx.pod.yaml
+# To expose port: kubectl port-forward deployment/nginx-deploy 8080:80
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+  labels:
+    app: my-nginx
+spec:
+  selector:
+    matchLabels:
+      app: my-nginx
+  template:
+    metadata:
+      labels:
+        app: my-nginx
+    spec:
+      containers:
+        - name: nginx-ct
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  labels:
+    app: my-nginx
+spec:
+  type: LoadBalancer
+  selector:
+    app: my-nginx
+  ports:
+    - port: 9000
+      targetPort: 80

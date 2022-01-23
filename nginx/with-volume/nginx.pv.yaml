@@ -1,0 +1,18 @@
+﻿# To create/run: kubectl apply -f nginx.pv.yaml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nginx-pv
+  labels:
+    type: local
+spec:
+  # kubectl get storageclass
+  storageClassName: hostpath
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: "/home/kunal-wsl/data"

@@ -1,0 +1,12 @@
+﻿# To create/run: kubectl apply -f nginx.pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-pvc
+spec:
+  storageClassName: hostpath
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
