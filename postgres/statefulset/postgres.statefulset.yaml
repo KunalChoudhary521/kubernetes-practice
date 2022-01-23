@@ -1,0 +1,63 @@
+﻿# source: https://www.youtube.com/watch?v=zj6r_EEhv6s&list=PLHq1uqvAteVvUEdqaBeMK2awVThNujwMd&index=9
+# Order of cmds: configMap ==> StatefulSet
+# To create/run: kubectl apply -f postgres.config.yaml -f postgres.statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-db # must match spec.template.metadata.labels below
+  template:
+    metadata:
+      labels:
+        app: postgres-db # must match spec.selector.matchLabels above
+    spec:
+      containers:
+        - name: db-container
+          image: postgres:13
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+          # readinessProbe: # Add readiness probe
+      # manual persistent volume
+      # volumes:
+      #   - name: postgres-storage
+      #     persistentVolumeClaim:
+      #       claimName: postgres-pvc
+  # dynamic persistent volume
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: "hostpath"
+        resources:
+          requests:
+            storage: 100Mi
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: postgres-db
+  ports:
+    - protocol: TCP
+      port: 5432
+      # postgres DB exposed on localhost:5432
+      targetPort: 5432

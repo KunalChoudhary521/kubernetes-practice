@@ -1,0 +1,12 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  labels:
+    app: postgres-db
+data:
+  # Move user & pass to secrets section/file
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: products
+  PGDATA: /var/lib/postgresql/data/pgdata
