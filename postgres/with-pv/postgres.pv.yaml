@@ -1,0 +1,18 @@
+﻿apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+  labels:
+    type: local
+spec:
+  # kubectl get storageclass
+  storageClassName: hostpath
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  # Note: Set to "Retain" to keep the volume after deployment is deleted
+  persistentVolumeReclaimPolicy: Retain
+  # Note: This is local storage volume, use cloud network storage for PROD
+  hostPath:
+    path: "/home/kunal-wsl/data"

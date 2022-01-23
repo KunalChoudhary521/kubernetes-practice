@@ -1,0 +1,53 @@
+﻿# source: https://www.youtube.com/watch?v=ZxC6FwEc9WQ&list=PLHq1uqvAteVvUEdqaBeMK2awVThNujwMd&index=10
+# Order of cmds: apply pv ==> pvc ==> configMap ==> deployment
+# To create/run: kubectl apply -f nginx.pv.yaml -f nginx.pvc.yaml -f nginx.config.yaml -f postgres.deployment.yaml
+# To see events table: kubectl describe pod -l app=postgres-db
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+  labels:
+    app: postgres-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-db
+  template:
+    metadata:
+      labels:
+        app: postgres-db
+    spec:
+      containers:
+        - name: db-container
+          image: postgres:13
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data/pgdata
+              name: postgres-storage
+          # readinessProbe: # Add readiness probe
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # This is the DB hostname for other services to connect to
+  name: postgres-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: postgres-db
+  ports:
+    - protocol: TCP
+      port: 5432
+      # postgres DB exposed on localhost:5432
+      targetPort: 5432

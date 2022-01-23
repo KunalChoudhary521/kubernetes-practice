@@ -1,0 +1,11 @@
+﻿apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  storageClassName: hostpath
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Mi
