@@ -28,7 +28,11 @@ spec:
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
-          # readinessProbe: # Add readiness probe
+          readinessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "psql -U postgres", "SELECT 1;"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
       # manual persistent volume
       # volumes:
       #   - name: postgres-storage
