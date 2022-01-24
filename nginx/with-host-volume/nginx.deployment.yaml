@@ -1,5 +1,4 @@
 ﻿# source:  https://stackoverflow.com/a/53068092
-# Run using minikube, copy files (ex. index.html) to /home/docker/data inside minikube VM
 # To create/run: kubectl apply -f nginx.deployment.yaml
 # kubectl describe pod -l app=nginx-with-volume
 apiVersion: apps/v1
@@ -28,7 +27,9 @@ spec:
       volumes:
         - name: nginx-storage
           hostPath:
-            path: "/home/docker/nginx-data"
+            #Create a folder in \\wsl$\docker-desktop\mnt\host\wsl\nginx-data
+            # source: https://github.com/docker/for-win/issues/7023#issuecomment-640142404
+            path: "/run/desktop/mnt/host/wsl/nginx-data"
 
 ---
 apiVersion: v1
@@ -42,6 +43,6 @@ spec:
   selector:
     app: nginx-with-volume
   ports:
-    - port: 8080 # external port
+    - port: 8000 # external port
       targetPort: 80 # container port
 

@@ -12,7 +12,7 @@
 
 ## Blogs:
 1. Database migrations in Kubernetes applications with Flyway - Sebastian Daschner ([Website](https://blog.sebastian-daschner.com/entries/flyway-migrate-databases-managed-k8s))
-
+2. Mounting volumes when running Kubernetes on Docker Desktop with wsl2: ([GitHub](https://github.com/docker/for-win/issues/7023#issuecomment-640142404))
 
 ## Useful minikube commands
 1. To get minikube ip: `minikube ip`
