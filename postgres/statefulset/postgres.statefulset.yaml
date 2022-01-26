@@ -57,11 +57,10 @@ kind: Service
 metadata:
   name: postgres-service
 spec:
-  type: LoadBalancer
+  #type: LoadBalancer #uncomment to expose to localhost
   selector:
     app: postgres-db
   ports:
     - protocol: TCP
-      port: 5432
-      # postgres DB exposed on localhost:5432
-      targetPort: 5432
+      port: 5432 # The port the Service listens on
+      targetPort: 5432 # The port the traffic is sent to the Pod
