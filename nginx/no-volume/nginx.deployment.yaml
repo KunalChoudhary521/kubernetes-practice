@@ -5,8 +5,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-deploy
-  labels:
-    app: my-nginx
 spec:
   selector:
     matchLabels:
@@ -27,12 +25,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nginx-service
-  labels:
-    app: my-nginx
 spec:
   type: LoadBalancer
   selector:
-    app: my-nginx
+    app: my-nginx1
   ports:
     - port: 9000
       targetPort: 80

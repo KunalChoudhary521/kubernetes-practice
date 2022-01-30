@@ -5,8 +5,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-deployment
-  labels:
-    app: nginx-with-volume
 spec:
   selector:
     matchLabels:
@@ -30,19 +28,19 @@ spec:
             #Create a folder in \\wsl$\docker-desktop\mnt\host\wsl\nginx-data
             # source: https://github.com/docker/for-win/issues/7023#issuecomment-640142404
             path: "/run/desktop/mnt/host/wsl/nginx-data"
+            #for minikube 
+            #path: /mnt/data/nginx-data             
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: nginx-service
-  labels:
-    app: nginx-with-volume
 spec:
   type: LoadBalancer
   selector:
     app: nginx-with-volume
   ports:
-    - port: 8000 # external port
-      targetPort: 80 # container port
+    - port: 8000 # external port the service listens on
+      targetPort: 80 # The port the traffic is sent to the Pod
 
