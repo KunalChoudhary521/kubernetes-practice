@@ -1,0 +1,29 @@
+﻿# To install packages: Use apk (ex. apk install curl)
+# To use container shell: kubectl.exe exec deploy/alpine-deploy -it -- /bin/sh
+# To ping other PODS: kubectl.exe exec deploy/alpine-deploy -it -- /bin/sh -c "ping $(kubectl get pod -l app=nginx-with-volume -o jsonpath='{.items[0].status.podIP}')"
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpine-deploy
+  labels:
+    app: pod-tester
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-tester
+  template:
+    metadata:
+      labels:
+        app: pod-tester
+    spec:
+      containers:
+        - image: alpine:3.12
+          name: alpine
+          command: ["/bin/sh", "-c", "echo $(hostname) container running on $(date) && sleep 600"]
+          volumeMounts:
+            - name: test-vol
+              mountPath: /mnt
+      volumes:
+        - name: test-vol
+          emptyDir: {}
