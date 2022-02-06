@@ -1,0 +1,55 @@
+# Run within minikube kubernetes cluster
+# To run: kubectl apply -f .
+# To clean-up: kubectl delete -f .
+apiVersion: v1
+kind: Service
+metadata:
+  name: nfs-service
+spec:
+  type: ClusterIP
+  # Change IP if kubectl throws errors
+  clusterIP: 10.96.0.101 # minikube issue(https://github.com/kubernetes/minikube/issues/2218)
+  ports:
+    - name: nfs
+      port: 2049
+      protocol: TCP
+    - name: rpcbind
+      port: 111
+      protocol: UDP
+  selector:
+    app: nfs-server
+   
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-server-deploy
+spec:
+  replicas: 1
+  selector:    
+    matchLabels:
+      app: nfs-server
+  template:
+    metadata:
+      labels:
+        app: nfs-server
+    spec:
+      containers:
+      - name: nfs-server-container
+        image: phico/nfs-server:latest # pluralsight: https://app.pluralsight.com/library/courses/kubernetes-deploying-stateful-applications/table-of-contents
+        ports:
+          - name: nfs
+            containerPort: 2049
+            protocol: TCP
+          - name: rpcbind
+            containerPort: 111
+            protocol: UDP
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - mountPath: /var/nfs
+            name: nfs-server-vol
+      volumes:
+        - name: nfs-server-vol
+          persistentVolumeClaim:
+            claimName: nfs-pvc # folder located in minikube at /tmp/hostpath-provisioner

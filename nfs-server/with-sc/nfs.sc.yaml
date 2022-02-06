@@ -1,0 +1,11 @@
+# Created from minikube:
+  # step #1 - Copy contents of command: kubectl.exe get sc standard -o yaml
+  # step #2 - Replace metadata section with name: <sc-name>
+# Source: Learn Kubernetes in a Month of Lunches - Ch. 5.4
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-sc
+provisioner: k8s.io/minikube-hostpath
+reclaimPolicy: Delete
+volumeBindingMode: Immediate

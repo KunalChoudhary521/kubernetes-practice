@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-client-deploy
+  labels:
+    app: nfs-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-client
+  template:
+    metadata:
+      labels:
+        app: nfs-client
+    spec:
+      containers:
+        - image: alpine:3.12
+          name: nfs-client-container
+          command: ["/bin/sh", "-c","echo 'At Work!' >> /mnt/log.txt; while true; do date >> /mnt/log.txt; sleep 10; done;"]
+          #command: ["/bin/sh", "-c", "echo 'alpine container running' && sleep 60"]
+          volumeMounts:
+            - name: nfs-client-vol
+              mountPath: /mnt
+      volumes:
+        - name: nfs-client-vol
+          nfs:
+            server: 10.96.0.101 #nfs-service
+            path: /exports
