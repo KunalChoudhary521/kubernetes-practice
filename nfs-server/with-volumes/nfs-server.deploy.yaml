@@ -1,0 +1,58 @@
+# Run within minikube kubernetes cluster
+# Setup for NFS server & client (Ubuntu): https://www.youtube.com/watch?v=SpYTsRk3Dkk
+apiVersion: v1
+kind: Service
+metadata:
+  name: nfs-service
+spec:
+  type: ClusterIP
+  # Change IP if kubectl throws errors
+  clusterIP: 10.96.0.100 # minikube issue(https://github.com/kubernetes/minikube/issues/2218)
+  ports:
+    - name: nfs
+      port: 2049
+      protocol: TCP
+    - name: rpcbind
+      port: 111
+      protocol: UDP
+  selector:
+    app: nfs-server
+   
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-server-deploy
+spec:
+  replicas: 1
+  selector:    
+    matchLabels:
+      app: nfs-server
+  template:
+    metadata:
+      labels:
+        app: nfs-server
+    spec:
+      containers:
+      - name: nfs-server-container
+        image: erichough/nfs-server:2.2.1 # github (https://github.com/ehough/docker-nfs-server)
+        ports:
+          - name: nfs
+            containerPort: 2049
+            protocol: TCP
+          - name: rpcbind
+            containerPort: 111
+            protocol: UDP
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - name: nfs-server-vol
+            mountPath: /var/nfs
+        env:
+          - name: NFS_EXPORT_0
+            value: "/var/nfs *(rw,fsid=0,sync,no_subtree_check)"
+      volumes:
+        - name: nfs-server-vol
+          hostPath:
+            path: /tmp/nfs-server # chmod 777 if client is unable to connect
+            type: DirectoryOrCreate
