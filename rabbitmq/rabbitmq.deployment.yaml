@@ -1,0 +1,57 @@
+﻿# To setup a cluster: https://github.com/marcel-dempers/docker-development-youtube-series/tree/master/messaging/rabbitmq/kubernetes
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-config
+  labels:
+    app: rabbitmq
+data:
+  RABBITMQ_DEFAULT_USER: guest
+  RABBITMQ_DEFAULT_PASS: guest
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq-deploy
+spec:
+  serviceName: rabbitmq-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - image: rabbitmq:3.9-management
+          name: rabbitmq-container
+          ports:
+            - containerPort: 5672
+              name: amqp
+            - containerPort: 15672
+              name: management
+          envFrom:
+            - configMapRef:
+                name: rabbitmq-config
+          volumeMounts:
+            -  name: rabbitmq-data
+               mountPath: /var/lib/rabbitmq
+      volumes:
+        - name: rabbitmq-data
+          hostPath:
+            path: /mnt/data/rabbitmq # inside minikube
+            type: DirectoryOrCreate
+   # dynamic pv
+#  volumeClaimTemplates:
+#    - metadata:
+#        name: rabbitmq-data
+#      spec:
+#        accessModes:
+#          - ReadWriteOnce
+#        storageClassName: standard # minikube location: /tmp/hostpath-provisioner/default/
+#        resources:
+#          requests:
+#            storage: 50Mi
