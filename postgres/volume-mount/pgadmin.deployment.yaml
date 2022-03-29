@@ -1,0 +1,48 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgadmin-config
+  labels:
+    app: pgadmin-ui
+data:
+  PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  PGADMIN_DEFAULT_PASSWORD: psql
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin-deploy
+spec:
+  selector:
+    matchLabels:
+      app: pgadmin-ui
+  template:
+    metadata:
+      labels:
+        app: pgadmin-ui
+    spec:
+      containers:
+        - name: pgadmin-container
+          image: dpage/pgadmin4:6.4
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: pgadmin-config
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: pgadmin-ui
+  ports:
+    - protocol: TCP
+      port: 9000 #browse to localhost:9000 and login (credentials in configmap)
+      targetPort: 80
+
