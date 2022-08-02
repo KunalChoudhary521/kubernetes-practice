@@ -1,0 +1,61 @@
+# To open terminal inside container: kubectl exec pod/mysql-0 -it -- /bin/sh
+# To log into MySQL as root (password in configmap file): mysql -u root -pmysql123
+# Create user and grant privileges like so: quit
+# CRUD on user & privileges doc: https://dev.mysql.com/doc/refman/8.0/en/create-user.html
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: mysql-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-db
+  template:
+    metadata:
+      labels:
+        app: mysql-db
+    spec:
+      containers:
+        - name: mysql-container
+          image: mysql:8.0.16
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - configMapRef:
+                name: mysql-config
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command: [ "/bin/sh", "-c", "mysql -u root -p$MYSQL_ROOT_PASSWORD", "SELECT 1;" ]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-storage
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: standard # minikube location: /tmp/hostpath-provisioner/default/
+        resources:
+          requests:
+            storage: 50Mi
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-svc
+spec:
+  #type: LoadBalancer #uncomment to expose to localhost
+  clusterIP: None
+  selector:
+    app: mysql-db
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
