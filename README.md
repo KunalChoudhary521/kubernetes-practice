@@ -20,7 +20,7 @@
    1. Multi-node setup: `minikube start --nodes=2 --disk-size 20g --memory 3072 --cpus 2 --vm-driver=docker --profile=multinode`
 2. To get minikube ip: `minikube ip`
 3. To ssh into minikube: `minikube ssh`
-4. To copy files from host to minikube: `minikube /host/path/to/file.txt /minikube/destination/folder/`
+4. To copy files from host to minikube: `minikube cp /host/path/to/file.txt /minikube/destination/folder/`
    1. minikube login - user: `docker`, pass: `tcuser`
 5. To expose LoadBalancer to host, run `minikube tunnel` process in a separate terminal window after applying deployments
 6. Location of dynamically provisioned volumes: `/tmp/hostpath-provisioner/default` or `/tmp/hostpath_pv`
