@@ -45,7 +45,7 @@ spec:
       spec:
         accessModes:
           - ReadWriteMany
-        storageClassName: "hostpath"
+        storageClassName: standard # minikube location: /tmp/hostpath-provisioner/default/
         resources:
           requests:
             storage: 100Mi
@@ -58,6 +58,7 @@ metadata:
   name: postgres-service
 spec:
   #type: LoadBalancer #uncomment to expose to localhost
+  clusterIP: None
   selector:
     app: postgres-db
   ports:
