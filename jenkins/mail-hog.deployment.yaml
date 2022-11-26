@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailhog-deploy
+spec:
+  selector:
+    matchLabels:
+      app: jenkins-ci
+  template:
+    metadata:
+      labels:
+        app: jenkins-ci
+    spec:
+      containers:
+        - name: mailhog-container
+          image: mailhog/mailhog:v1.0.1 # github: https://github.com/mailhog/MailHog
+          ports:
+            - containerPort: 8025
+            - containerPort: 1025
+          volumeMounts:
+            - name: mailhog-data
+              mountPath: /maildir # source: https://github.com/mailhog/MailHog/issues/101#issuecomment-378557922
+      volumes:
+        - name: mailhog-data
+          hostPath:
+            path: /mnt/data/mailhog #inside minikube
+            type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailhog-service
+spec:
+  type: LoadBalancer #uncomment to expose to localhost
+  #clusterIP: None
+  selector:
+    app: jenkins-ci
+  ports:
+    -  port: 8025 # web UI
+       targetPort: 8025
+       protocol: TCP
+       name: web-ui
+    -  port: 1025 # SMTP server port (source: https://akrabat.com/using-mailhog-via-docker-for-testing-email/#manually-running-via-docker)
+       targetPort: 1025
+       protocol: TCP
+       name: smtp-server

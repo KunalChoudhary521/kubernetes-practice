@@ -1,0 +1,54 @@
+# pluralsight course: https://app.pluralsight.com/library/courses/getting-started-jenkins/table-of-contents
+# To create/run: kubectl apply -f .
+# To remove: kubectl delete -f .
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-deploy
+spec:
+  selector:
+    matchLabels:
+      app: jenkins-ci
+  template:
+    metadata:
+      labels:
+        app: jenkins-ci
+    spec:
+      securityContext:
+        fsGroup: 1000
+        # jenkins image tries to create a folder as uid=1000 and fails, this user can't create folders & files in /mnt dir
+        runAsUser: 0
+      containers:
+        - name: jenkins-container
+          image: jenkins/jenkins:lts-jdk11
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: jenkins-data
+              mountPath: /var/jenkins_home
+          readinessProbe:
+            httpGet:
+              path: "/login"
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: jenkins-data
+          hostPath:
+            path: /mnt/data/jenkins #inside minikube
+            type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: jenkins-ci
+  ports:
+    - protocol: TCP
+      port: 8080 # The port the Service listens on
+      targetPort: 8080 # The port the traffic is sent to the Pod/deployment
