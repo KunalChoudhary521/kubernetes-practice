@@ -25,3 +25,5 @@
 5. To expose LoadBalancer to host, run `minikube tunnel` process in a separate terminal window after applying deployments
 6. Location of dynamically provisioned volumes: `/tmp/hostpath-provisioner/default` or `/tmp/hostpath_pv`
 7. Minikube is configured to persist files stored under the following directories: ([Documentation](https://minikube.sigs.k8s.io/docs/handbook/persistent_volumes/#a-note-on-mounts-persistence-and-minikube-hosts))
+8. To switch to superuser, type: `su`, with password: `root`
+9. To shrink WSL2's virtual disk `ext4.vhdx`: [Blog post](https://stephenreescarter.net/how-to-shrink-a-wsl2-virtual-disk/) 
