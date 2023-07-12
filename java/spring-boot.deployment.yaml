@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: spring-boot-config
 data:
-  ACTIVE_SPRING_PROFILE: dev
+  SPRING_PROFILES_ACTIVE: dev
 
 
 ---
@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: spring-boot-container
-          image: openjdk:8-jre-alpine #Change image
+          image: springio/gs-spring-boot-docker:latest #Change image
           ports:
             - containerPort: 8080 #Change port
           envFrom:
