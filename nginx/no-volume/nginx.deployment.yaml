@@ -1,6 +1,6 @@
-﻿# To create/run: kubectl apply -f nginx.pod.yaml --dry-run=client --validate=true
-# To delete: kubectl delete -f nginx.pod.yaml
-# To expose port: kubectl port-forward deployment/nginx-deploy 8080:80
+﻿# To create/run: kubectl apply -f nginx.deployment.yaml --dry-run=client --validate=true
+# To delete: kubectl delete -f nginx.deployment.yaml
+# To expose port: kubectl port-forward deploy/nginx-deploy 9000:80
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,7 +28,7 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
-    app: my-nginx1
+    app: my-nginx
   ports:
     - port: 9000
       targetPort: 80
